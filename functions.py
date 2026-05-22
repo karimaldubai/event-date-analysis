@@ -2,7 +2,6 @@ import yfinance as yf
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-import scipy
 import plotly.express as px
 from scipy.stats import ttest_1samp
 from scipy.stats import wilcoxon
@@ -90,6 +89,14 @@ def get_finance_data(ticker, start, end):
 def check_data(data, estimation_window=True):
     #check_data can be used to check for estimation window(window will be set 150 so OLS can atleast calculate 120 values)
     #and for event window, which needs a stricter restriction because of the smaller window size
+    if data is None:
+        print("data is None")
+        return None
+
+    if data.empty:
+        print("data is empty")
+        return None
+
     if estimation_window == True:
         max_missing = 0.2
     else:
