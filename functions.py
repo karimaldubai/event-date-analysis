@@ -8,60 +8,23 @@ from scipy.stats import wilcoxon
 from scipy.stats import t as student_t
 #https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
 #https://media.datacamp.com/legacy/image/upload/v1676302827/Marketing/Blog/Data_Wrangling_Cheat_Sheet.pdf
+"""
+tickers = ["XOM", "CVX", "SHEL", "BP", "TTE", "PBR", "ONGC.NS", "EQNR", "NWMD.TA"]
 
+for ticker in tickers:
+    df = yf.download(
+        ticker,
+        period="max",
+        interval="1d",
+        auto_adjust=False,
+        progress=False
+    )
 
-tickers = [
-    "XOM",        # ExxonMobil
-    "CVX",        # Chevron
-    "SHEL",       # Shell
-    "BP",         # BP
-    "TTE",        # TotalEnergies
-    "2222.SR",    # Saudi Aramco
-    "PTR",        # PetroChina
-    "SNP",        # Sinopec
-    "PBR",        # Petrobras
-    "ONGC.NS",    # ONGC (India)
-    "EQNR",       # Equinor
-    "NWMD.TA",    # NewMed Energy (Israel)
-    "ADNOCGAS.AE",# ADNOC Gas (UAE)
-    "ADNOCDRILL.AE" # ADNOC Drilling (UAE)
-]
-trueTickers = []
-
-#########################Test Data################################################################
-dates = pd.date_range("2022-01-01", periods=15, freq="D")
-
-columns = pd.MultiIndex.from_tuples(
-    [
-        ("Close", "TEST"),
-        ("High", "TEST"),
-        ("Low", "TEST"),
-        ("Open", "TEST"),
-        ("Volume", "TEST"),
-    ],
-    names=["Price", "Ticker"]
-)
-
-values = [
-    [100.0, 101.0,  99.0, 100.5, 1000000],
-    [101.0, 102.0, 100.0, 101.5, 1100000],
-    [np.nan, 103.0, 101.0, 102.5, 1200000],  # missing Close
-    [103.0, 104.0, 102.0, 103.5, 1300000],
-    [104.0, 105.0, 103.0, 104.5, 1400000],
-    [np.nan, 106.0, 104.0, 105.5, 1500000],  # missing Close
-    [106.0, 107.0, 105.0, 106.5, 1600000],
-    [107.0, 108.0, 106.0, 107.5, 1700000],
-    [np.nan, 109.0, 107.0, 108.5, 1800000],  # missing Close
-    [109.0, 110.0, 108.0, 109.5, 1900000],
-    [110.0, 111.0, 109.0, 110.5, 2000000],
-    [111.0, 112.0, 110.0, 111.5, 2100000],
-    [np.nan, 113.0, 111.0, 112.5, 2200000],  # missing Close
-    [113.0, 114.0, 112.0, 113.5, 2300000],
-    [114.0, 115.0, 113.0, 114.5, 2400000],
-]
-
-test_data = pd.DataFrame(values, index=dates, columns=columns)
-test_data.index.name = "Date"
+    if df.empty:
+        print(ticker, "no data")
+    else:
+        print(ticker, df.index.min().date(), "to", df.index.max().date())
+"""
 #########################################################################################
 
 #https://ranaroussi.github.io/yfinance/reference/index.html
@@ -90,11 +53,9 @@ def check_data(data, estimation_window=True):
     #check_data can be used to check for estimation window(window will be set 150 so OLS can atleast calculate 120 values)
     #and for event window, which needs a stricter restriction because of the smaller window size
     if data is None:
-        print("data is None")
         return None
 
     if data.empty:
-        print("data is empty")
         return None
 
     if estimation_window == True:
@@ -113,10 +74,17 @@ def check_data(data, estimation_window=True):
         return None
     else:
         return data
-
+    
 #this function is very self explanatory. as seen in the mathematical explenation, the returns are just the return change from the
 #prior day. so we can just use the percentage change and already got it
 def calculate_returns(data):
+    if data is None:
+        return None
+    
+    if data.empty:
+        return None
+    
+
     data[f"{data.columns[0]} Returns"] = data.iloc[:,0].pct_change()
     return data
 
@@ -293,50 +261,3 @@ def single_comp_CAR_test(event_data, residuals, date):
 
 
 ##############################################################################################################
-
-
-
-"""
-market = get_finance_data("^GSPC", "2022-11-10", "2023-01-10")
-market = check_data(market)
-market = calculate_returns(market)
-
-XOM_event = get_finance_data("XOM", "2023-01-10", "2023-01-20")
-XOM_event = check_data(XOM_event)
-XOM_event = calculate_returns(XOM_event)
-XOM_estimate = get_finance_data("XOM", "2022-11-10", "2023-01-10")
-XOM_estimate = check_data(XOM_estimate)
-XOM_estimate = calculate_returns(XOM_estimate)
-XOM_estimate = calculate_alpha_beta(XOM_estimate, market)
-XOM_event = calculate_ER_AR_CAR(XOM_estimate,XOM_event)
-
-
-CVX_event = get_finance_data("CVX", "2023-01-10", "2023-01-20")
-CVX_event = check_data(CVX_event)
-CVX_event = calculate_returns(CVX_event)
-CVX_estimate = get_finance_data("CVX", "2022-11-10", "2023-01-10")
-CVX_estimate = check_data(CVX_estimate)
-CVX_estimate = calculate_returns(CVX_estimate)
-CVX_estimate = calculate_alpha_beta(CVX_estimate, market)
-CVX_event = calculate_ER_AR_CAR(CVX_estimate,CVX_event)
-
-SHEL_event = get_finance_data("SHEL", "2023-01-10", "2023-01-20")
-SHEL_event = check_data(SHEL_event)
-SHEL_event = calculate_returns(SHEL_event)
-SHEL_estimate = get_finance_data("SHEL", "2022-11-10", "2023-01-10")
-SHEL_estimate = check_data(SHEL_estimate)
-SHEL_estimate = calculate_returns(SHEL_estimate)
-SHEL_estimate = calculate_alpha_beta(SHEL_estimate, market)
-SHEL_event = calculate_ER_AR_CAR(SHEL_estimate,SHEL_event)
-
-print(SHEL_event)
-print(XOM_event)
-print(CVX_event)
-
-data_frame = combine_stocks(XOM_event,CVX_event,SHEL_event)
-
-print(data_frame)
-plot_data(data_frame)
-t_test(data_frame.iloc[:,1])
-wilcoxon_test(data_frame.iloc[:,1])
-"""
