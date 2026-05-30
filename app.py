@@ -13,8 +13,10 @@ user_input = st.chat_input("Please type Date of event in yyyy-mm-dd: ", key = "e
 
 if user_input is not None:
         try:
+            event_date = datetime.strptime(user_input, "%Y-%m-%d")
             if event_date.weekday() >= 5:
-                st.error("Please choose a trading day. No stock data for weekends")
+                st.session_state.event_date = None
+                st.error("Please choose a weekday. Weekends are not allowed.")
             else:
                 st.session_state.event_date = event_date
                 st.success("Date accepted")
