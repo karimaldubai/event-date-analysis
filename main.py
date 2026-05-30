@@ -4,11 +4,29 @@ from datetime import timedelta
 import functions as func
 import pandas as pd
 tickers = [
-"XOM", "CVX", "SHEL", "BP", "TTE", "PBR", "ONGC.NS", "EQNR", "NWMD.TA"
+"XOM",
+    "BP",
+    "BP.L",
+    "SHEL",
+    "SHEL.L",
+    "CVX",
+    "TTE",
+    "TTE.PA",
+    "E",
+    "ENI.MI",
+    "COP",
+    "REP.MC",
+    "APA",
+    "DVN",
+    "BHP",
+    "BHP.AX",
+    "EXE",
+    "CNQ",
+    "CNQ.TO"
 ]
 
 
-date = "1973-10-12"
+date = "2024-10-12"
 
 def analisys(date):
     
