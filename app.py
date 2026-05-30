@@ -2,7 +2,6 @@ import streamlit as st
 import main as main
 from datetime import datetime
 from datetime import timedelta
-
 import plotly.express as px
 
 st.title("Oil Stock Analysis around Event Date")
@@ -14,26 +13,29 @@ user_input = st.chat_input("Please type Date of event in yyyy-mm-dd: ", key = "e
 
 if user_input is not None:
         try:
-            event_date = datetime.strptime(user_input, "%Y-%m-%d")
-            st.session_state.event_date = event_date
-            st.success("Date accepted")
-            st.write(f"Date: {user_input}")
+            if event_date.weekday() >= 5:
+                st.error("Please choose a trading day. No stock data for weekends")
+            else:
+                st.session_state.event_date = event_date
+                st.success("Date accepted")
+                st.write(f"Date: {user_input}")
         except ValueError:
             st.error("Please use the format yyyy-mm-dd")
 
 if st.session_state.event_date is not None:
     results = main.analisys(st.session_state.event_date)
+    if isinstance(results, dict) and "error" in results:
+        st.error(results["error"])
+        st.stop()
+
 
     st.header(f"result for {st.session_state.event_date}")
-
-
-
     st.subheader("Comulative Abnormal Returns Graph")
-
 
 
     chart_data = results[0].iloc[:,1::2]
     chart_data.columns = chart_data.columns.droplevel(1)
+
 
     fig = px.line(
     chart_data,
@@ -42,8 +44,8 @@ if st.session_state.event_date is not None:
     title = "CARs of all companies"
     )
     fig.add_hline(y=0, line_dash = "dash")
-
     st.plotly_chart(fig)    
+
 
     st.subheader("Abnormal Returns and Cumulative Abnormal Returns")
     st.dataframe(results[0])
