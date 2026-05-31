@@ -3,6 +3,8 @@ from datetime import datetime
 from datetime import timedelta
 import functions as func
 import pandas as pd
+from pathlib import Path
+
 
 #IOCs
 tickers = [
@@ -175,6 +177,7 @@ event_dates = ["2026-03-02", "2026-04-08", "2026-04-24"]
 t_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
 w_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
 CARs = pd.DataFrame(index = event_dates)
+market_model_test = pd.DataFrame(index = event_dates)
 
 for i in event_dates:
     combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test = analisys(i)
@@ -202,9 +205,34 @@ for i in event_dates:
     else:
         w_tests.loc[i,"significance α 0.05"] = "not significant"
     
-    for x in analisys(i)[3].columns:
+    for y in single_test.index:
+        if single_test.loc[y]["p-value"] < 0.01:
+            market_model_test.loc[i,f"{y} α 0.01"] = "s"
+        else:
+            market_model_test.loc[i,f"{y} α 0.01"] = "ns"
+
+        if single_test.loc[y]["p-value"] < 0.05:
+            market_model_test.loc[i,f"{y} α 0.05"] = "s"
+        else:
+            market_model_test.loc[i,f"{y} α 0.05"] = "ns"
+
+    for x in event_CARs.columns:
         CARs.loc[i,x] = event_CARs.iloc[0][x]
+
+
+results_folder = Path("results")
+results_folder.mkdir(exist_ok=True)
+
+excel_path = results_folder / "analysis_results.xlsx"
+
+with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
+    t_tests.to_excel(writer, sheet_name="t_tests")
+    w_tests.to_excel(writer, sheet_name="w_tests")
+    CARs.to_excel(writer, sheet_name="CARs")
+    market_model_test.to_excel(writer, sheet_name="market_model_test")
+
 
 print(t_tests)
 print(w_tests)
 print(CARs)
+print(market_model_test)

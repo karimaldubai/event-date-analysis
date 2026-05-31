@@ -5,3 +5,4 @@ plotly
 yfinance
 scipy
 statsmodels
+openpyxl
