@@ -3,6 +3,8 @@ from datetime import datetime
 from datetime import timedelta
 import functions as func
 import pandas as pd
+
+#IOCs
 tickers = [
     "XOM",
     "BP",
@@ -10,17 +12,55 @@ tickers = [
     "CVX",
     "TTE",
     "E",
+    "ENI.MI",
     "COP",
     "REP.MC",
     "APA",
     "DVN",
-    "BHP",
-    "EXE",
     "CNQ"
 ]
 
+"""
+#NOCs
+tickers ={    
+    "2222.SR",   # Saudi Aramco
+    "PBR",       # Petrobras
+    "EQNR",      # Equinor
+    "EC",        # Ecopetrol
+    "YPF",       # YPF
+    "0857.HK",   # PetroChina
+    "0386.HK",   # Sinopec
+    "0883.HK",   # CNOOC
+    "ONGC.NS",   # ONGC
+    "OIL.NS",    # Oil India
+    "PTTEP.BK",  # PTT Exploration and Production
+    "OMV.VI"     # OMV}
+}
+"""
+"""
+#Renewable Companies
+tickers = {
+        "NEE",        # NextEra Energy
+    "ORSTED.CO", # Ørsted
+    "IBE.MC",    # Iberdrola
+    "ENEL.MI",   # Enel
+    "VWS.CO",    # Vestas Wind Systems
+    "FSLR",      # First Solar
+    "EDPR.LS",   # EDP Renewables
+    "BEP",       # Brookfield Renewable
+    "ENPH",      # Enphase Energy
+    "SEDG",      # SolarEdge Technologies
+    "CSIQ",      # Canadian Solar
+    "JKS",       # JinkoSolar
+    "VER.VI",    # Verbund
+    "SCATC.OL",  # Scatec
+    "ANE.MC",    # Acciona Energía
+    "0916.HK",   # China Longyuan Power
+    "300274.SZ"  # Sungrow Power Supply
+}
+"""
 
-date = "2024-10-15"
+date = "2026-04-17"
 
 def analisys(date):
     
@@ -114,9 +154,7 @@ def analisys(date):
         residual_standard_deviation_df.loc["residual variance", ticker] = list(ticker_dict_estimate.values())[i]["residual variance"].iloc[0]
         residual_standard_deviation_df.loc["degrees of freedom", ticker] = list(ticker_dict_estimate.values())[i]["degrees of freedom"].iloc[0]
 
-    print(residual_standard_deviation_df)
     single_test = func.single_comp_CAR_test(combined_stocks, residual_standard_deviation_df, date)
-    print(single_test)
 
     data_ARs = combined_stocks.iloc[:, 0 : : 2]
     data_ARs.columns = data_ARs.columns.droplevel(1)
@@ -130,5 +168,43 @@ def analisys(date):
         event_CARs.loc["CAR", col_ARs] = data_ARs.iloc[:,i].sum()
 
     return combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test
+#analisys(date)
 
-analisys(date)
+event_dates = ["2026-03-02", "2026-04-08", "2026-04-24"]
+
+t_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
+w_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
+CARs = pd.DataFrame(index = event_dates)
+
+for i in event_dates:
+    combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test = analisys(i)
+    t_tests.loc[i,"p-value"] = t_tests_values[1] 
+    if t_tests.loc[i,"p-value"]<0.01:
+        t_tests.loc[i,"significance α 0.01"] = "significant"
+    else:
+        t_tests.loc[i,"significance α 0.01"] = "not significant"
+    
+    if t_tests.loc[i,"p-value"]<0.05:
+        t_tests.loc[i,"significance α 0.05"] = "significant"
+    else:
+        t_tests.loc[i,"significance α 0.05"] = "not significant"
+
+
+    w_tests.loc[i,"p-value"] = w_tests_values[1]
+
+    if w_tests.loc[i,"p-value"]<0.01:
+        w_tests.loc[i,"significance α 0.01"] = "significant"
+    else:
+        w_tests.loc[i,"significance α 0.01"] = "not significant"
+    
+    if w_tests.loc[i,"p-value"]<0.05:
+        w_tests.loc[i,"significance α 0.05"] = "significant"
+    else:
+        w_tests.loc[i,"significance α 0.05"] = "not significant"
+    
+    for x in analisys(i)[3].columns:
+        CARs.loc[i,x] = event_CARs.iloc[0][x]
+
+print(t_tests)
+print(w_tests)
+print(CARs)

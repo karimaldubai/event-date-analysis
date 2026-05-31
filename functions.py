@@ -91,7 +91,6 @@ def calculate_alpha_beta(stock_data, market_data):
     stock_data["beta"] = model.params.iloc[1]
     stock_data["residual variance"] = model.mse_resid
     stock_data["degrees of freedom"] = model.df_resid
-    print(stock_data)
     return stock_data
 
 
