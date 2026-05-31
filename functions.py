@@ -8,25 +8,6 @@ from scipy.stats import wilcoxon
 from scipy.stats import t as student_t
 #https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
 #https://media.datacamp.com/legacy/image/upload/v1676302827/Marketing/Blog/Data_Wrangling_Cheat_Sheet.pdf
-"""
-tickers = ["XOM", "CVX", "SHEL", "BP", "TTE", "PBR", "ONGC.NS", "EQNR", "NWMD.TA"]
-
-for ticker in tickers:
-    df = yf.download(
-        ticker,
-        period="max",
-        interval="1d",
-        auto_adjust=False,
-        progress=False
-    )
-
-    if df.empty:
-        print(ticker, "no data")
-    else:
-        print(ticker, df.index.min().date(), "to", df.index.max().date())
-"""
-#########################################################################################
-
 #https://ranaroussi.github.io/yfinance/reference/index.html
 #get_finance_data downloads single ticker data and returns single level index data frame with only adjusted closing data
 #auto adjust = True already adjusts for stock splits and dividends. so when the stock sinks but the value for the shareholders didnt
@@ -35,8 +16,6 @@ for ticker in tickers:
 #sadly only perfect for us marked (ask if okay or if you should try to apply the ideas manually) - i dont really understand how it 
 #could only work perfect for us prices... why... wouldnt they program it to just automatically work with all tickers? they surely
 #didnt go through all the us data. i dont understand things, im very bad at programing.
-
-
 def get_finance_data(ticker, start, end):
     data = yf.download(ticker, start, end, progress=False, interval="1d", repair = True, auto_adjust= True)
     if data.empty:
@@ -136,6 +115,22 @@ def combine_stocks(*data):
         combined_data.columns = pd.MultiIndex.from_tuples(combined_data.columns)
         #combined_data = combined_data.dropna()
     return combined_data
+
+def check_abnormal_returns(event_data):
+    max_missing_ARs = 2
+    if event_data is None:
+        return None
+
+    if event_data.empty:
+        return None
+
+    missing_ARs = event_data["Abnormal Returns"].isna().sum()
+
+    if missing_ARs > max_missing_ARs:
+        print(f"Too many missing abnormal returns: {missing_ARs}")
+        return None
+
+    return event_data
 
 #https://media.datacamp.com/legacy/image/upload/v1668605954/Marketing/Blog/Plotly_Cheat_Sheet.pdf
 def plot_data(data):
