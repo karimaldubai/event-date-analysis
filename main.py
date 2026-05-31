@@ -89,11 +89,16 @@ def analisys(date):
 
     for i in ticker_dict_estimate:
         ticker_dict_estimate[i] = func.calculate_alpha_beta(ticker_dict_estimate[i], market)
-    print(ticker_dict_estimate)
 
-    for i in ticker_dict_event:
-        ticker_dict_event[i] = func.calculate_ER_AR_CAR(ticker_dict_estimate[i], ticker_dict_event[i], market)
-
+    for i in list(ticker_dict_event):
+        event_data_ARs = func.calculate_ER_AR_CAR(ticker_dict_estimate[i], ticker_dict_event[i], market)
+        check_event_data_AR = func.check_abnormal_returns(event_data_ARs)
+        if check_event_data_AR is None:
+            del ticker_dict_estimate[i]
+            del ticker_dict_event[i]
+        else:
+            ticker_dict_event[i] = check_event_data_AR
+    
     combined_stocks = func.combine_stocks(*ticker_dict_event.values())
 
     t_tests_values = func.t_test(combined_stocks, date)
