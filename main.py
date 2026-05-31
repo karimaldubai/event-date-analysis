@@ -99,9 +99,13 @@ def analisys(date):
         else:
             ticker_dict_event[i] = check_event_data_AR
     
+    if len(ticker_dict_event) == 0:
+        return{"error": "Too much missing data"}
+    
+
     combined_stocks = func.combine_stocks(*ticker_dict_event.values())
 
-    t_tests_values = func.t_test(combined_stocks, date)
+    t_tests_values = func.t_test(combined_stocks, date) 
     w_tests_values = func.wilcoxon_test(combined_stocks, date)
     
     residual_standard_deviation_df = pd.DataFrame(index = (["residual variance", "degrees of freedom"]))
