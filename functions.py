@@ -6,6 +6,7 @@ import plotly.express as px
 from scipy.stats import ttest_1samp
 from scipy.stats import wilcoxon
 from scipy.stats import t as student_t
+from pathlib import Path
 #https://pandas.pydata.org/Pandas_Cheat_Sheet.pdf
 #https://media.datacamp.com/legacy/image/upload/v1676302827/Marketing/Blog/Data_Wrangling_Cheat_Sheet.pdf
 #https://ranaroussi.github.io/yfinance/reference/index.html
@@ -152,6 +153,7 @@ def plot_data(data):
     )
     fig.add_hline(y=0, line_dash = "dash")
     fig.show()
+    return fig
 
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_1samp.html
 def t_test(data, date):

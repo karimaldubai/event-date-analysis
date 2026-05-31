@@ -178,6 +178,9 @@ t_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance �
 w_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
 CARs = pd.DataFrame(index = event_dates)
 market_model_test = pd.DataFrame(index = event_dates)
+plot_folder = Path("results/plots")
+plot_folder.mkdir(parents=True, exist_ok=True)
+
 
 for i in event_dates:
     combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test = analisys(i)
@@ -218,6 +221,10 @@ for i in event_dates:
 
     for x in event_CARs.columns:
         CARs.loc[i,x] = event_CARs.iloc[0][x]
+
+    fig = func.plot_data(combined_stocks)
+
+    fig.write_html(plot_folder / f"CARs_{i}.html")
 
 
 results_folder = Path("results")
