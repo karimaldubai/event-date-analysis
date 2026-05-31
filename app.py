@@ -1,5 +1,5 @@
 import streamlit as st
-import main as main
+from main import analisys
 from datetime import datetime
 from datetime import timedelta
 import plotly.express as px
@@ -25,7 +25,7 @@ if user_input is not None:
             st.error("Please use the format yyyy-mm-dd")
 
 if st.session_state.event_date is not None:
-    results = main.analisys(st.session_state.event_date)
+    results = analisys(st.session_state.event_date)
     if isinstance(results, dict) and "error" in results:
         st.error(results["error"])
         st.stop()
