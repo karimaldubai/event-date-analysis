@@ -239,7 +239,7 @@ with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
     market_model_test.to_excel(writer, sheet_name="market_model_test")
 
 
-print(t_tests)
-print(w_tests)
-print(CARs)
-print(market_model_test)
+print(f"t-test: {t_tests}")
+print(f"wilcoxon test: {w_tests}")
+print(f"CARs: {CARs}")
+print(f"Market model test: {market_model_test}")
