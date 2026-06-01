@@ -223,7 +223,8 @@ plot_folder.mkdir(parents=True, exist_ok=True)
 
 for i in event_dates:
     combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test = analisys(i)
-    t_tests.loc[i,"p-value"] = t_tests_values[1] 
+    t_tests.loc[i,"p-value"] = t_tests_values[1]
+    w_tests.loc[i,"p-value"] = w_tests_values[1] 
     if t_tests.loc[i,"p-value"]<0.01:
         t_tests.loc[i,"significance α 0.01"] = "significant"
     else:
