@@ -62,10 +62,10 @@ tickers = {
 }
 """
 
-date = "2026-04-17"
-
 def analisys(date):
-    
+##########################################################################################################
+#user input   
+
     while isinstance(date, datetime) != True:
         try:
             date = datetime.strptime(date, "%Y-%m-%d")
@@ -74,14 +74,26 @@ def analisys(date):
     
     start_event = date - timedelta(days = 20)
     end_event = date + timedelta(days = 20)
-    start_estimation = date - timedelta(days = 150)
-    end_estimation = date + timedelta(days = 150)
-    
+    start_estimation = date - timedelta(days = 160)
+    end_estimation = date - timedelta(days = 31)
+##########################################################################################################
+#calculates Market data for OLS and expected returns
 
-    market = func.get_finance_data("^GSPC", start_estimation, end_estimation)
-    market = func.check_data(market)
-    market = func.calculate_returns(market)
+    market_event = func.get_finance_data("^GSPC", start_event, end_event)
+    market_event = func.check_data(market_event,False)
+    market_event = func.calculate_returns(market_event)
     
+    market_estimation = func.get_finance_data("^GSPC", start_estimation, end_estimation)
+    market_estimation = func.check_data(market_estimation,True)
+    market_estimation = func.calculate_returns(market_estimation)
+
+    if market_event is None:
+        return {"error": "Market Data is not available"}
+    
+    if market_estimation is None:
+        return {"error": "Market Data is not available"}
+##########################################################################################################
+#download market data and check if enough values are available
 
     ticker_dict_event = {}
     for i in tickers:
@@ -94,8 +106,7 @@ def analisys(date):
 
 
     for i in list(ticker_dict_event):
-        check_data_event = func.check_data(ticker_dict_event[i], False)
-        
+        check_data_event = func.check_data(ticker_dict_event[i], False)        
         if check_data_event is None:
             del ticker_dict_event[i]
         else:
@@ -107,6 +118,8 @@ def analisys(date):
             del ticker_dict_estimate[i]
         else:
             ticker_dict_estimate[i] = check_data_estimate
+##########################################################################################################
+#check if event and estimation window have the same tickers
 
     for i in list(ticker_dict_event):
         if i not in ticker_dict_estimate:
@@ -117,9 +130,8 @@ def analisys(date):
 
     if len(ticker_dict_event) == 0:
         return {"error": "Ticker Data not availble"}
-    
-    if market is None:
-        return {"error": "Market Data is not available"}
+##########################################################################################################
+#calculate returns for event and estimation window
 
     for i in ticker_dict_event:
         ticker_dict_event[i] = func.calculate_returns(ticker_dict_event[i])
@@ -127,13 +139,16 @@ def analisys(date):
 
     for i in ticker_dict_estimate:
         ticker_dict_estimate[i] = func.calculate_returns(ticker_dict_estimate[i])
-
+##########################################################################################################
+#calculate alpha and beta through OLS with estimation window
 
     for i in ticker_dict_estimate:
-        ticker_dict_estimate[i] = func.calculate_alpha_beta(ticker_dict_estimate[i], market)
+        ticker_dict_estimate[i] = func.calculate_alpha_beta(ticker_dict_estimate[i], market_estimation)
+##########################################################################################################
+#calculate ER/AR/CAR and save in event dataframe; check if stocks have enough AR values to analyse, if not delete them
 
     for i in list(ticker_dict_event):
-        event_data_ARs = func.calculate_ER_AR_CAR(ticker_dict_estimate[i], ticker_dict_event[i], market)
+        event_data_ARs = func.calculate_ER_AR_CAR(ticker_dict_estimate[i], ticker_dict_event[i], market_event)
         check_event_data_AR = func.check_abnormal_returns(event_data_ARs)
         if check_event_data_AR is None:
             del ticker_dict_estimate[i]
@@ -143,13 +158,18 @@ def analisys(date):
     
     if len(ticker_dict_event) == 0:
         return{"error": "Too much missing data"}
-    
+##########################################################################################################
+#combine stocks into new dataframe
 
     combined_stocks = func.combine_stocks(*ticker_dict_event.values())
+##########################################################################################################
+#run t-test, wilcoxon test
 
     t_tests_values = func.t_test(combined_stocks, date) 
     w_tests_values = func.wilcoxon_test(combined_stocks, date)
-    
+##########################################################################################################
+#take residual variance and degrees of freedom, previously calculated in OLS out of estimation window and use to run Market Model test
+
     residual_standard_deviation_df = pd.DataFrame(index = (["residual variance", "degrees of freedom"]))
     for i in range(len(ticker_dict_estimate)):
         ticker = list(ticker_dict_estimate.keys())[i]
@@ -157,6 +177,8 @@ def analisys(date):
         residual_standard_deviation_df.loc["degrees of freedom", ticker] = list(ticker_dict_estimate.values())[i]["degrees of freedom"].iloc[0]
 
     single_test = func.single_comp_CAR_test(combined_stocks, residual_standard_deviation_df, date)
+##########################################################################################################
+#calculate CAR around event window (i manually changed to 5+- days in all the functions, i dont know why anymore.. i could have just used this window from the beginning)
 
     data_ARs = combined_stocks.iloc[:, 0 : : 2]
     data_ARs.columns = data_ARs.columns.droplevel(1)
@@ -168,14 +190,31 @@ def analisys(date):
     for i in range(len(data_ARs.columns)):
         col_ARs = data_ARs.columns[i]
         event_CARs.loc["CAR", col_ARs] = data_ARs.iloc[:,i].sum()
+##########################################################################################################
+#creates files before return
+    results_folder = Path("results")
+    results_folder.mkdir(exist_ok=True)
+
+    #date_str = pd.to_datetime(date).strftime("%Y-%m-%d")
+    file_path = results_folder / f"{pd.to_datetime(date).strftime('%Y-%m-%d')}_results.xlsx"
+
+    with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
+        combined_stocks.to_excel(writer, sheet_name="combined_stocks")
+        event_CARs.to_excel(writer, sheet_name="event_CARs")
+        single_test.to_excel(writer, sheet_name="market_model_test")
 
     return combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test
 #analisys(date)
+##########################################################################################################
+#checks the event dates during the IRAN/US/ISRAEL conflict and combines them into dataframes that can be presented more easily instead of a bunch of ARs and CARs and values
+#that arent easily 
 
 event_dates = ["2026-03-02", "2026-04-08", "2026-04-24"]
 
 t_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
 w_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
+t_test_p_values = pd.DataFrame(index = event_dates, columns= ["p-value"])
+w_test_p_values = pd.DataFrame(index = event_dates, columns= ["p-value"])
 CARs = pd.DataFrame(index = event_dates)
 market_model_test = pd.DataFrame(index = event_dates)
 plot_folder = Path("results/plots")
@@ -194,9 +233,6 @@ for i in event_dates:
         t_tests.loc[i,"significance α 0.05"] = "significant"
     else:
         t_tests.loc[i,"significance α 0.05"] = "not significant"
-
-
-    w_tests.loc[i,"p-value"] = w_tests_values[1]
 
     if w_tests.loc[i,"p-value"]<0.01:
         w_tests.loc[i,"significance α 0.01"] = "significant"
