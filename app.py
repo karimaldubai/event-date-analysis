@@ -44,7 +44,7 @@ if st.session_state.event_date is not None:
     x = chart_data.index,
     y = chart_data.columns,
     title = "CARs of all companies",
-    labels={"value": "CAR", "index": "Date", "variable": "Company"
+    labels={"value": "comulative abnormal returns", "index": "Date", "variable": "Company"
     }
     )
     fig.add_hline(y=0, line_dash = "dash")

@@ -97,7 +97,7 @@ def calculate_alpha_beta(stock_data, market_data):
 
 
 #So here we put in the data frame for estimation window, because we need the alpha and beta and the event window to actually calculate
-#the expected and abnormal returns. Its the same problem as incalculate_alpha_beta, that i have to use iloc[:,[1]] to call on the returns
+#the expected and Abnormal Returns. Its the same problem as incalculate_alpha_beta, that i have to use iloc[:,[1]] to call on the returns
 #instead of just ["Returns"]. I could have said [f"{event_data.columns[0]} Returns] but that looked even messier to me idk.
 def calculate_ER_AR_CAR(estimation_data, event_data, market_data):  
     event_data["Expected Returns"] = estimation_data.iloc[0]["alpha"] + estimation_data.iloc[0]["beta"] * market_data.iloc[:,1]
@@ -110,13 +110,13 @@ def combine_stocks(*data):
     combined_data = pd.DataFrame()
 
     for i in data:
-        combined_data[i.columns[0], "Abnormal returns"] = i["Abnormal Returns"]
-        combined_data[i.columns[0], "Comulative abnormal returns"] = i["CAR"]
+        combined_data[i.columns[0], "Abnormal Returns"] = i["Abnormal Returns"]
+        combined_data[i.columns[0], "Comulative Abnormal Returns"] = i["CAR"]
         combined_data.columns = pd.MultiIndex.from_tuples(combined_data.columns)
         #combined_data = combined_data.dropna()
     return combined_data
 
-def check_abnormal_returns(event_data):
+def check_abnormal_returns(event_data, date):
     max_missing_ARs = 2
     if event_data is None:
         return None
@@ -127,7 +127,7 @@ def check_abnormal_returns(event_data):
     missing_ARs = event_data["Abnormal Returns"].isna().sum()
 
     if missing_ARs > max_missing_ARs:
-        print(f"Too many missing abnormal returns: {missing_ARs}")
+        print(f"Too many missing Abnormal Returns at event {date} in stock {event_data.columns[0]}: {missing_ARs} ARs")
         return None
 
     return event_data
@@ -180,8 +180,7 @@ def t_test(data, date):
     p_value = test.pvalue
     
 
-    if p_value > alpha:
-        
+    if p_value > alpha: 
         return t_value, p_value, f"Accept t-test Null Hypothysis. CARs are too close to 0 to reject - date is not significant"
     else:
         
@@ -253,7 +252,6 @@ def single_comp_CAR_test(event_data, residuals, date):
         else:
             single_com_test.loc[col_t_Car, "α 0.05"] = ("Fail to reject null hypothesis at alpha 0.05. Abnormal Returns are not statistically significantly different to estimation data")
     return single_com_test
-
 
 
 ##############################################################################################################

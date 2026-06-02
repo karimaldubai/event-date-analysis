@@ -6,60 +6,193 @@ import pandas as pd
 from pathlib import Path
 
 
+############################################################################################################
+#tickers for my project
 #IOCs
+
+tickers = [
+    "XOM",      # Exxon Mobil Corporation
+    "BP",       # BP p.l.c.
+    "SHEL",     # Shell plc
+    "CVX",      # Chevron Corporation
+    "TTE",      # TotalEnergies SE
+    "E",        # Eni S.p.A. ADR
+    "COP",      # ConocoPhillips
+    "REP.MC",   # Repsol S.A.
+    "APA",      # APA Corporation
+    "DVN",      # Devon Energy Corporation
+    "CNQ"       # Canadian Natural Resources Limited,
+]
+
+#NOCs
+"""
+tickers ={    
+    "2222.SR",   # Saudi Aramco
+    "PBR",       # Petrobras (brazil)
+    "EQNR",      # Equinor 
+    "EC",        # Ecopetrol (columbia)
+    "YPF",       # YPF (spain)
+    "0857.HK",   # PetroChina
+    "0386.HK",   # Sinopec (china)
+    "0883.HK",   # CNOOC (China national offshore company)
+    "ONGC.NS",   # ONGC (Oil and Natural Gas Corporation Limited [India])
+    "OIL.NS",    # Oil India
+    "PTTEP.BK",  # PTT Exploration and Production (thailand)
+    "OMV.VI"     # OMV
+}
+"""
+"""
+#Renewable Companies
+tickers = {
+        "NEE",        # NextEra Energy USA
+    "ORSTED.CO", # Ørsted danish
+    "IBE.MC",    # Iberdrola Spain
+    "ENEL.MI",   # Enel Italy
+    "VWS.CO",    # Vestas Wind Systems Denmark
+    "FSLR",      # First Solar USA
+    "EDPR.LS",   # EDP Renewables Spain
+    "BEP",       # Brookfield Renewable
+    "ENPH",      # Enphase Energy USA
+    "SEDG",      # SolarEdge Technologies israel
+    "CSIQ",      # Canadian Solar
+    "JKS",       # JinkoSolar chinese
+    "VER.VI",    # Verbund
+    "SCATC.OL",  # Scatec Norway
+    "ANE.MC",    # Acciona Energía Spain
+    "0916.HK",   # China Longyuan Power
+    "300274.SZ"  # Sungrow Power Supply China 
+}
+"""
+############################################################################################################
+#tickers for controll
+"""
+#us tickers for controll
+tickers = [
+    "XOM",      # Exxon Mobil
+    "BP",       # BP
+    "CVX",      # Chevron
+    "COP",      # ConocoPhillips
+    "APA",      # Apache / APA Corporation
+    "DVN",      # Devon Energy
+    "APC",      # Anadarko
+    "CHK"       # Chesapeake
+]
+"""
+"""
+#non us tickers for controll
+tickers = [
+    "SHEL",       # Shell
+    "TTE",        # TotalEnergies
+    "LUKOY",      # Lukoil
+    "E",          # Eni
+    "SNGS.ME",    # Surgutneftegas
+    "TNKBP.ME",   # TNK-BP
+    "REP.MC",     # Repsol
+    "NVTK.ME",    # Novatek
+    "BG.L",       # BG Group
+    "BHP",        # BHP Billiton / BHP Group
+    "CNQ"         # Canadian Natural Resources
+]
+"""
+
+"""
+#all tickers for controll
 tickers = [
     "XOM",
     "BP",
     "SHEL",
     "CVX",
     "TTE",
+    "LUKOY",
     "E",
-    "ENI.MI",
+    "SNGS.ME",
+    "TNKBP.ME",
     "COP",
     "REP.MC",
+    "NVTK.ME",
+    "BG.L",
     "APA",
     "DVN",
+    "APC",
+    "BHP",
+    "CHK",
     "CNQ"
-]
 
+]
 """
-#NOCs
-tickers ={    
-    "2222.SR",   # Saudi Aramco
-    "PBR",       # Petrobras
-    "EQNR",      # Equinor
-    "EC",        # Ecopetrol
-    "YPF",       # YPF
-    "0857.HK",   # PetroChina
-    "0386.HK",   # Sinopec
-    "0883.HK",   # CNOOC
-    "ONGC.NS",   # ONGC
-    "OIL.NS",    # Oil India
-    "PTTEP.BK",  # PTT Exploration and Production
-    "OMV.VI"     # OMV}
-}
+#golf war
 """
+tickers = [
+    "XOM",       # Exxon Mobil
+    "BP",        # BP
+    "SHEL",      # Shell
+    "CVX",       # Chevron
+    "E",         # Eni
+    "COP",       # ConocoPhillips
+    "REP.MC",    # Repsol
+    "BG.L",      # BG Group
+    "APA",       # Apache / APA Corporation
+    "DVN",       # Devon Energy
+    "APC",       # Anadarko
+    "BHP",       # BHP Billiton / BHP Group
+    "CHK",       # Chesapeake
+    "CNQ",       # Canadian Natural Resources
+    "TTE",       # Total / TotalEnergies
+    "LUKOY",     # Lukoil
+    "SNGS.ME",   # Surgutneftegas
+    "TNKBP.ME",  # TNK-BP
+    "NVTK.ME"    # Novatek
+]
 """
-#Renewable Companies
-tickers = {
-        "NEE",        # NextEra Energy
-    "ORSTED.CO", # Ørsted
-    "IBE.MC",    # Iberdrola
-    "ENEL.MI",   # Enel
-    "VWS.CO",    # Vestas Wind Systems
-    "FSLR",      # First Solar
-    "EDPR.LS",   # EDP Renewables
-    "BEP",       # Brookfield Renewable
-    "ENPH",      # Enphase Energy
-    "SEDG",      # SolarEdge Technologies
-    "CSIQ",      # Canadian Solar
-    "JKS",       # JinkoSolar
-    "VER.VI",    # Verbund
-    "SCATC.OL",  # Scatec
-    "ANE.MC",    # Acciona Energía
-    "0916.HK",   # China Longyuan Power
-    "300274.SZ"  # Sungrow Power Supply
-}
+#afghan war
+"""
+tickers = [
+    "XOM",       # Exxon Mobil
+    "BP",        # BP
+    "SHEL",      # Shell
+    "CVX",       # Chevron
+    "E",         # Eni
+    "COP",       # ConocoPhillips
+    "REP.MC",    # Repsol
+    "BG.L",      # BG Group
+    "APA",       # Apache / APA Corporation
+    "DVN",       # Devon Energy
+    "APC",       # Anadarko
+    "BHP",       # BHP Billiton / BHP Group
+    "CHK",       # Chesapeake
+    "CNQ",       # Canadian Natural Resources
+
+    "TTE",       # Total / TotalEnergies
+    "LUKOY",     # Lukoil
+    "SNGS.ME",   # Surgutneftegas
+    "TNKBP.ME",  # TNK-BP
+    "NVTK.ME"    # Novatek
+]
+"""
+
+#iraq war
+"""
+tickers = [
+    "XOM",       # Exxon Mobil
+    "BP",        # BP
+    "SHEL",      # Shell
+    "CVX",       # Chevron
+    "E",         # Eni
+    "COP",       # ConocoPhillips
+    "REP.MC",    # Repsol
+    "BG.L",      # BG Group
+    "APA",       # Apache / APA Corporation
+    "DVN",       # Devon Energy
+    "APC",       # Anadarko
+    "BHP",       # BHP Billiton / BHP Group
+    "CHK",       # Chesapeake
+
+    "TTE",       # Total / TotalEnergies
+    "LUKOY",     # Lukoil
+    "SNGS.ME",   # Surgutneftegas
+    "TNKBP.ME",  # TNK-BP
+    "NVTK.ME"    # Novatek
+]
 """
 
 def analisys(date):
@@ -74,8 +207,8 @@ def analisys(date):
     
     start_event = date - timedelta(days = 20)
     end_event = date + timedelta(days = 20)
-    start_estimation = date - timedelta(days = 160)
-    end_estimation = date - timedelta(days = 31)
+    start_estimation = date - timedelta(days = 170)
+    end_estimation = date - timedelta(days = 40)
 ##########################################################################################################
 #calculates Market data for OLS and expected returns
 
@@ -149,7 +282,7 @@ def analisys(date):
 
     for i in list(ticker_dict_event):
         event_data_ARs = func.calculate_ER_AR_CAR(ticker_dict_estimate[i], ticker_dict_event[i], market_event)
-        check_event_data_AR = func.check_abnormal_returns(event_data_ARs)
+        check_event_data_AR = func.check_abnormal_returns(event_data_ARs, date)
         if check_event_data_AR is None:
             del ticker_dict_estimate[i]
             del ticker_dict_event[i]
@@ -162,6 +295,12 @@ def analisys(date):
 #combine stocks into new dataframe
 
     combined_stocks = func.combine_stocks(*ticker_dict_event.values())
+    for i in list(combined_stocks.columns.get_level_values(0).unique()):
+        missing_ARs = combined_stocks[i].iloc[:, 0].isna().sum()
+        if missing_ARs > 2:
+            del combined_stocks[i]
+
+
 ##########################################################################################################
 #run t-test, wilcoxon test
 
@@ -204,7 +343,7 @@ def analisys(date):
         single_test.to_excel(writer, sheet_name="market_model_test")
 
     return combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test
-#analisys(date)
+
 ##########################################################################################################
 #checks the event dates during the IRAN/US/ISRAEL conflict and combines them into dataframes that can be presented more easily instead of a bunch of ARs and CARs and values
 #that arent easily 
