@@ -19,7 +19,7 @@ if user_input is not None:
                 st.error("Please choose a weekday. Weekends are not trading days.")
             else:
                 st.session_state.event_date = event_date
-                st.success("Date accepted")
+                st.success("Date accept ed")
                 st.write(f"Date: {user_input}")
         except ValueError:
             st.error("Please use the format yyyy-mm-dd")
@@ -43,7 +43,9 @@ if st.session_state.event_date is not None:
     chart_data,
     x = chart_data.index,
     y = chart_data.columns,
-    title = "CARs of all companies"
+    title = "CARs of all companies",
+    labels={"value": "CAR", "index": "Date", "variable": "Company"
+    }
     )
     fig.add_hline(y=0, line_dash = "dash")
     st.plotly_chart(fig)    
