@@ -65,7 +65,7 @@ def calculate_returns(data):
         return None
     
 
-    data[f"{data.columns[0]} Returns"] = data.iloc[:,0].pct_change()
+    data[f"{data.columns[0]} Returns"] = data.iloc[:, 0].pct_change(fill_method=None)
     return data
 
 #this function first calculates alpha and beta with OLS through a statsmodel function.
@@ -152,7 +152,7 @@ def plot_data(data):
         title = "CARs of all companies"
     )
     fig.add_hline(y=0, line_dash = "dash")
-    fig.show()
+    #fig.show()
     return fig
 
 #https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_1samp.html
@@ -232,26 +232,26 @@ def single_comp_CAR_test(event_data, residuals, date):
 
     L = len(data_ARs)
     t_CAR = pd.DataFrame(index=["tCAR"])
-    for i in range(len(event_CARs.columns)):
-        col_CARs = event_CARs.columns[i]
-        t_CAR.loc["tCAR", col_CARs] = (event_CARs.iloc[0, i])/(np.sqrt(L*residuals.iloc[0, i]))
+
+    for i in event_CARs.columns:
+        t_CAR.loc["tCAR", i] = (event_CARs.loc["CAR", i])/(np.sqrt(L*residuals.loc["residual variance", i]))
     
 
     #https://www.geeksforgeeks.org/machine-learning/how-to-find-a-p-value-from-a-t-score-in-python/#how-to-find-a-pvalue-from-a-tscore
     single_com_test = pd.DataFrame(index = t_CAR.columns, columns = (["p-value", "α 0.01", "α 0.05"]), dtype = object)
-    for i in range(len(t_CAR.columns)):
-        col_t_Car = t_CAR.columns[i]
-        single_com_test.loc[col_t_Car, "p-value"] = student_t.sf(np.abs(t_CAR.iloc[0,i]), ((residuals.iloc[1,i])-2))*2
-        if single_com_test.loc[col_t_Car, "p-value"] < 0.01:
-            single_com_test.loc[col_t_Car, "α 0.01"] = ("Reject null hypothesis at alpha 0.01. Abnormal Returns are statistically significantly different to estimation data")
+    for i in t_CAR.columns:
+        single_com_test.loc[i, "p-value"] = student_t.sf(np.abs(t_CAR.loc["tCAR",i]), ((residuals.loc["degrees of freedom",i])))*2
+        if single_com_test.loc[i, "p-value"] < 0.01:
+            single_com_test.loc[i, "α 0.01"] = ("Reject null hypothesis at alpha 0.01. Abnormal Returns are statistically significantly different to estimation data")
         else:
-            single_com_test.loc[col_t_Car, "α 0.01"] = ("Fail to reject null hypothesis at alpha 0.01. Abnormal Returns are not statistically significantly different to estimation data")
+            single_com_test.loc[i, "α 0.01"] = ("Fail to reject null hypothesis at alpha 0.01. Abnormal Returns are not statistically significantly different to estimation data")
         
-        if single_com_test.loc[col_t_Car, "p-value"] < 0.05:
-            single_com_test.loc[col_t_Car, "α 0.05"] = ("Reject null hypothesis at alpha 0.05. Abnormal Returns are statistically significantly different to estimation data")
+        if single_com_test.loc[i, "p-value"] < 0.05:
+            single_com_test.loc[i, "α 0.05"] = ("Reject null hypothesis at alpha 0.05. Abnormal Returns are statistically significantly different to estimation data")
         else:
-            single_com_test.loc[col_t_Car, "α 0.05"] = ("Fail to reject null hypothesis at alpha 0.05. Abnormal Returns are not statistically significantly different to estimation data")
+            single_com_test.loc[i, "α 0.05"] = ("Fail to reject null hypothesis at alpha 0.05. Abnormal Returns are not statistically significantly different to estimation data")
     return single_com_test
+
 
 
 ##############################################################################################################

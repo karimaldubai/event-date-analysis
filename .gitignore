@@ -14,5 +14,3 @@ archive/
 .DS_Store
 Thumbs.db
 
-results/
-*.xlsx

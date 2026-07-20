@@ -9,7 +9,7 @@ from pathlib import Path
 ############################################################################################################
 #tickers for my project
 #IOCs
-
+"""
 tickers = [
     "XOM",      # Exxon Mobil Corporation
     "BP",       # BP p.l.c.
@@ -23,7 +23,7 @@ tickers = [
     "DVN",      # Devon Energy Corporation
     "CNQ"       # Canadian Natural Resources Limited,
 ]
-
+"""
 #NOCs
 """
 tickers ={    
@@ -41,8 +41,37 @@ tickers ={
     "OMV.VI"     # OMV
 }
 """
-"""
+
+#all OCs
+
+tickers = [
+    "XOM",      # Exxon Mobil Corporation
+    "BP",       # BP p.l.c.
+    "SHEL",     # Shell plc
+    "CVX",      # Chevron Corporation
+    "TTE",      # TotalEnergies SE
+    "E",        # Eni S.p.A. ADR
+    "COP",      # ConocoPhillips
+    "REP.MC",   # Repsol S.A.
+    "APA",      # APA Corporation
+    "DVN",      # Devon Energy Corporation
+    "CNQ" ,      # Canadian Natural Resources Limited,
+    "PBR",       # Petrobras (brazil)
+    "EQNR",      # Equinor 
+    "EC",        # Ecopetrol (columbia)
+    "YPF",       # YPF (spain)
+    "0857.HK",   # PetroChina
+    "0386.HK",   # Sinopec (china)
+    "0883.HK",   # CNOOC (China national offshore company)
+    "ONGC.NS",   # ONGC (Oil and Natural Gas Corporation Limited [India])
+    "OIL.NS",    # Oil India
+    "PTTEP.BK",  # PTT Exploration and Production (thailand)
+    "OMV.VI"     # OMV
+]
+
+
 #Renewable Companies
+"""
 tickers = {
         "NEE",        # NextEra Energy USA
     "ORSTED.CO", # Ørsted danish
@@ -62,9 +91,9 @@ tickers = {
     "0916.HK",   # China Longyuan Power
     "300274.SZ"  # Sungrow Power Supply China 
 }
-"""
 ############################################################################################################
 #tickers for controll
+"""
 """
 #us tickers for controll
 tickers = [
@@ -212,11 +241,11 @@ def analisys(date):
 ##########################################################################################################
 #calculates Market data for OLS and expected returns
 
-    market_event = func.get_finance_data("^GSPC", start_event, end_event)
+    market_event = func.get_finance_data("^990100-USD-STRD", start_event, end_event)
     market_event = func.check_data(market_event,False)
     market_event = func.calculate_returns(market_event)
     
-    market_estimation = func.get_finance_data("^GSPC", start_estimation, end_estimation)
+    market_estimation = func.get_finance_data("^990100-USD-STRD", start_estimation, end_estimation)
     market_estimation = func.check_data(market_estimation,True)
     market_estimation = func.calculate_returns(market_estimation)
 
@@ -295,11 +324,26 @@ def analisys(date):
 #combine stocks into new dataframe
 
     combined_stocks = func.combine_stocks(*ticker_dict_event.values())
-    for i in list(combined_stocks.columns.get_level_values(0).unique()):
-        missing_ARs = combined_stocks[i].iloc[:, 0].isna().sum()
-        if missing_ARs > 2:
-            del combined_stocks[i]
+    #for i in combined_stocks.index:
 
+    for i in list(combined_stocks.index):
+        row_ARs = combined_stocks.loc[i].iloc[0::2]
+        missing_ARs_date = row_ARs.isna().sum()
+
+        if missing_ARs_date > 2:
+            print(f"Deleted date {i}; {missing_ARs_date} tickers had missing ARs")
+            combined_stocks = combined_stocks.drop(index=i)
+
+    for i in list(combined_stocks.columns.get_level_values(0).unique()):
+
+        missing_ARs = combined_stocks[i].iloc[:, 0].isna().sum()
+
+        if missing_ARs > 0:
+            print(f"Deleted ticker {i}; {missing_ARs} missing ARs")
+
+            del combined_stocks[i]
+            del ticker_dict_event[i]
+            del ticker_dict_estimate[i]
 
 ##########################################################################################################
 #run t-test, wilcoxon test
@@ -348,7 +392,7 @@ def analisys(date):
 #checks the event dates during the IRAN/US/ISRAEL conflict and combines them into dataframes that can be presented more easily instead of a bunch of ARs and CARs and values
 #that arent easily 
 
-event_dates = ["2026-03-02", "2026-04-08", "2026-04-24"]
+event_dates = ["2026-03-02", "2026-04-08", "2026-04-20"]
 
 t_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
 w_tests = pd.DataFrame(index = event_dates, columns= ["p-value", "significance α 0.01", "significance α 0.05"])
@@ -362,6 +406,8 @@ plot_folder.mkdir(parents=True, exist_ok=True)
 
 for i in event_dates:
     combined_stocks, t_tests_values, w_tests_values, event_CARs, single_test = analisys(i)
+    print(f"{i} wilcoxon: t-statistic {w_tests_values[0]}")
+    print(f"{i} t-test: t-statistic {t_tests_values[0]}")
     t_tests.loc[i,"p-value"] = t_tests_values[1]
     w_tests.loc[i,"p-value"] = w_tests_values[1] 
     if t_tests.loc[i,"p-value"]<0.01:
@@ -401,6 +447,9 @@ for i in event_dates:
     fig = func.plot_data(combined_stocks)
 
     fig.write_html(plot_folder / f"CARs_{i}.html")
+
+CARs = CARs.fillna("not included")
+market_model_test = market_model_test.fillna("not included")
 
 
 results_folder = Path("results")
